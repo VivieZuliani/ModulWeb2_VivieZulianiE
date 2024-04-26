@@ -583,9 +583,182 @@ Script :
 
  ?>
 ```
+
+#### Outputnya :
+
+![Screenshot 2024-04-26 180843](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/2d1615ba-bcb1-4a8a-a305-f8a7b6fa0eda)
+
+
 > form.php
+```
+<?php
+/**
+ * Nama Class : Form
+ * Deskripsi : Class untuk membuat form inputan text sederhana
+ */
+
+ class Form
+ {
+    private $fields = array();
+    private $action;
+    private $submit = "Submit Form";
+    private $jumField = 0;
+
+    public function __construct($action, $submit)
+    {
+        $this->action = $action;
+        $this->submit = $submit;
+    }
+
+    public function displayForm()
+    {
+        echo "<form action ='".$this->action."' method='POST'>";
+        echo '<table width="100%" border="0">';
+        for ($j=0; $j<count($this->fields); $j++){
+            echo "<tr><td align='right'>".$this->fields[$j]['label']."</td>";
+            echo "<td><input type='text' name='".$this->fields[$j]['name']."'></td></tr>";
+        }
+        echo "<tr><td colspan='2";
+        echo "<input type='submit value='".$this->submit."'></td></tr>";
+        echo "</table>";
+    }
+
+    public function addField($name, $label)
+    {
+        $this->fields [$this->jumField]['name'] = $name;
+        $this->fields [$this->jumField]['label'] = $label;
+    }
+ }
+ ?>
+```
+
+#### Outputnya :
+
+![Screenshot 2024-04-26 180925](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/cfc11f1b-53d9-4b42-bd80-1a46002bc315)
+
+
 > form_input.php
+```
+<?php
+/**
+ * Program memanfaatkan 10.2 untuk membuat form inputan sederhana
+ */
+
+include "form.php";
+
+echo "<html><head><title>Mahasiswa</title></head><body>";
+$form = new Form("","Input Form");
+$form->addField("txtnim", "Nim");
+$form->addField("txtnama", "Nama");
+$form->addField("txtalamat", "Alamat");
+echo "<h3>Silahkan isi form berikut ini : </h3>";
+$form->displayForm();
+echo "</body></html>";
+
+?>
+```
+
+#### Outputnya :
+
+![Screenshot 2024-04-26 181008](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/f8a25ce2-bdeb-4a91-b871-87d27d985fc2)
+
+
 > database.php
+```
+<?php
+
+class Database {
+    protected $host;
+    protected $user;
+    protected $password;
+    protected $db_name;
+    protected $conn;
+
+    public function __construct(){
+        $this->getConfig();
+        $this->conn = new mysqli($this->host, $this->user, $this->password, $this->db_name);
+        if($this->conn->connect_error){
+            die("Connection failed : ". $this->conn->connect_error);
+        }
+    }
+
+    private function getConfig(){
+        include_once("config.php");
+        $this->host =$config['host'];
+        $this->user = $config['username'];
+        $this->password = $config['password'];
+        $this->db_name = $config['db_name'];
+    }
+
+    public function query($sql){
+        return $this->conn->query($sql);
+    }
+
+    public function get($table, $where=null){
+        if($where){
+            $where = " WHERE ".$where;
+        }
+        $sql = "SELECT * FROM".$table.$where;
+        $sql = $this->conn->query($sql);
+        $sql = $sql->fetch_assoc();
+        return $sql;
+    }
+
+    public function insert($table, $data)
+    {
+        if (is_array($data)){
+            foreach ($data as $key => $value) {
+                # code...
+                $column[] = $key;
+                $value[] = "'{$value}'";
+            }
+            $column = implode(",", $column);
+            $values = implode(",", $value);
+        }
+        $sql = "INSERT INTO ".$table." (".$column.") VALUES (".$values.")";
+        $sql = $this->conn->query($sql);
+        if($sql == true){
+            return $sql;
+        } else {
+            return false;
+        }
+    }
+
+    public function update($table, $data, $where){
+        $update_value ="";
+        if(is_array($data)){
+            foreach($data as $key => $val){
+                $update_value[] = "$key='{$val}'";
+            }
+            $update_value = implode(",", $update_value);
+        }
+
+        $sql = "UPDATE".$table." SET ".$update_value." WHERE ".$where;
+        $sql = $this->conn->query($sql);
+        if($sql == true){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function delete($table, $filter){
+        $sql = "DELETE FROM ".$table."".$filter;
+        $sql = $this->conn->query($sql);
+        if ($sql == true){
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+?>
+```
+
+#### Outputnya :
+
+![Screenshot 2024-04-26 181042](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/54e168d4-a563-44c7-aebf-d0466b93a3a3)
+
 
 
 
