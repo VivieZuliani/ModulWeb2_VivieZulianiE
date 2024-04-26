@@ -220,19 +220,206 @@ $result = mysqli_query($conn, $sql);
 ```
 > tambah.php
 ```
+<?php
+error_reporting(E_ALL);
+include_once 'koneksi.php';
 
+if (isset($_POST['submit']))
+{
+    $nama = $_POST['nama'];
+    $kategori = $_POST['kategori'];
+    $harga_jual = $_POST['harga_jual'];
+    $harga_beli = $_POST['harga_beli'];
+    $stok = $_POST['stok'];
+    $file_gambar = $_FILES['$file_gambar'];
+    $gambar = null;
+    if ($file_gambar['error'] == 0)
+    {
+        $filename = str_replace('', '_',$file_gambar['name']);
+        $destination = dirname(__FILE__) .'/gambar/' . $filename;
+        if(move_uploaded_file($file_gambar['tmp_name'], $destination))
+        {
+            $gambar = 'gambar/' . $filename;;
+        }
+    }
+    $sql = 'INSERT INTO data_barang (nama, kategori, harga_jual, harga_beli, stok, gambar) ';
+    $sql = "VALUE ('{$nama}', '{$kategori}', '{$harga_jual}', '{$harga_beli}', '{$stok}', '{$gambar}')";
+    $result =mysqli_query($conn, $sql);
+    header('location: index.php');
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <title>Tambah Barang</title>
+</head>
+<body>
+    <div class="container">
+    <h1>Tambah Barang</h1>
+    <form method="post" action="tambah.php" enctype="multipart/form-data">
+        <div class="input">
+            <label>Nama Barang</label>
+            <input type="text" name="nama"/>
+        </div>
+        <div class="input">
+            <label>Kategori</label>
+            <select name="kategori">
+                <option value="Komputer">Komputer</option>
+                <option value="Elektronik">Elektronik</option>
+                <option value="Hand Phone">Hand Phone</option>
+            </select>
+        </div>
+        <div class="input">
+            <label>Harga Jual</label>
+            <input type="text" name="harga_jual" />
+        </div>
+        <div class="input">
+            <label>Harga Beli</label>
+            <input type="text" name="harga_beli" />
+        </div>
+        <div class="input">
+            <label>stok</label>
+            <input type="text" name="stok" />
+        </div>
+        <div class="input">
+            <label>File Gambar</label>
+            <input type="file" name="file_gambar" />
+        </div>
+        <div class="submit">
+            <input type="submit" name="submit" value="Simpan" />
+        </div>
+        </div>
+    </form>
+</body>
+</html>
 ```
 > ubah.php
 ```
+<?php
+error_reporting(E_ALL);
+include_once 'koneksi.php';
 
+if(isset($_POST['submit']));
+{
+    $id = $_POST['id'];
+    $nama = $_POST['nama'];
+    $kategori = $_POST['kategori'];
+    $harga_jual = $_POST['harga_jual'];
+    $harga_beli = $_POST['harga_beli'];
+    $stok = $_POST['stok'];
+    $file_gambar = $_FILES['file_gambar'];
+    $gambar = null;
+
+    if ($file_gambar['error'] == 0)
+    {
+        $file_gambar = str_replace('', '_', $file_gambar['nama']);
+        $destination = dirname(__FILE__) . '/gambar/' . $filename;
+        if (move_uploaded_file($file_gambar['tmp_name'], $destination))
+        {
+            $gambar = 'gambar/' . $filename;;
+        }
+    }
+
+    $sql = 'UPDATE data_barang SET';
+    $sql = "nama = '{$nama}', kategori = '{$kategori}', ";
+    $sql = "harga_jual = '{$harga_jual}', harga_beli = '{$harga_beli}', stok = '{$stok}', ";
+    if (!empty($gambar))
+        $sql .= ", gambar = '{$gambar}' ";
+    $sql .= "WHERE id_barang ='{$id}'";
+    $result = mysqli_query($conn, $sql);
+
+    header('location: index.php');
+}
+
+$id = $_GET['id']; 
+$sql = "SELECT * FROM data_barang WHERE id_barang = '{$id}'";
+$result = mysqli_query($conn, $sql);
+if (!$result) die('Error: Data tidak tersedia');
+$data = mysqli_fetch_array($result);
+
+function is_select($var, $val) {
+    if ($var == $val) return 'selected="selected"';
+    return false;
+}
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <title>Ubah Barang</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Ubah Barang</h1>
+        <div class="main">
+            <form method="post" action="ubah.php" enctype="multipart/form-data">
+                <div class="input">
+                    <label>Nama Barang</label>
+                    <input type="text" name="nama" value="<?php echo $data['nama'];?>" />
+                </div>
+                <div class="input">
+                    <label> Kategori</label>
+                    <select name="kategori">
+                        <option> <?php echo is_select ('Komputer', $data['kategori']);?> value="Komputer">Komputer</option>
+                        <option> <?php echo is_select ('Komputer', $data['kategori']);?> value="Elektronik">Elektronik</option>
+                        <option> <?php echo is_select ('Komputer', $data['kategori']);?> value="Hand Phone">Hand Phone</option>
+                    </select>
+                </div>
+                <div class="input">
+                    <label>Harga Jual</label>
+                    <input type="text" name="harga_jual" value="<>php echo $data['harga_jual'];?>" />
+                </div>
+                <div class="input">
+                    <label>Harga Beli</label>
+                    <input type="text" name="harga_beli" value="<>php echo $data['harga_beli'];?>" />
+                </div>
+                <div class="input">
+                    <label>stok</label>
+                    <input type="text" name="harga_jual" value="<>php echo $data['stok'];?>" />
+                </div>
+                <div class="input">
+                    <label>File Gambar</label>
+                    <input type="file" name="file_gambar" />
+                </div>
+                <div class="submit">
+                    <input type="hidden" name="id" value="<?php echo $data['id_barang'];?>" />
+                    <input type="submit" name="submit" value="Simpan" />
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
 ```
 > hapus.php
 ```
-
+<?php
+include_once 'koneksi.php';
+$id = $_GET['id'];
+$sql = "DELETE FROM data_barang WHERE id_barang = '{$id}'";
+$result = mysqli_query($conn, $sql);
+header('location: index.php');
 ```
 > koneksi.php
 ```
+<?php
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db = "latihan1";
 
+$conn = mysqli_connect($host, $user, $pass, $db);
+if  ($conn == false)
+{
+    echo "Koneksi ke server gagal.";
+    die();
+} #else echo "koneksi berhasil";
+?>
 ```
 
 #### Output :
@@ -241,9 +428,6 @@ $result = mysqli_query($conn, $sql);
 
 > Halaman tambah.php
 ![Screenshot 2024-04-23 223953](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/000f6aba-8bd4-4174-9933-b2f622907a0b)
-
-
-
 
 
 ## MODUL 3_4 PHP MODULAR DAN OOP
@@ -335,12 +519,10 @@ RewriteRule ^(.*)$ index.php?mod=$1 [L]
  > hasilnya undefine karena memerlukan mod di urlnya, jadi undefine akan hilang jika sudah mengklik `home` atau `about`
 
 > halaman home
-
 ![Screenshot 2024-04-26 153752](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/4cc25ec0-7d9a-417b-bd24-a25200041ec2)
 
 
 > halaman about
-
 ![Screenshot 2024-04-26 153837](https://github.com/VivieZuliani/ModulWeb2_VivieZulianiE/assets/130271255/e691efd7-eed2-4c27-bb66-2e1c7728c89c)
 
 #### Pertanyaan dan Tugas
@@ -352,7 +534,58 @@ Outputnya :
 
 
 ### LAB 5_PHP OOP
+Script :
+> mobil.php
+```
+<?php
+/**
+ * PROGRAM PENDEFINISIAN DAN PEMANGGILAN CLASS
+ */
 
+ class Mobil
+ {
+  private $warna;
+  private $merk;
+  private $harga;  
+  public function __construct()
+  {
+    $this->warna = "Biru";
+    $this->merk = "BMW";
+    $this->harga = "10000000";
+  }
+
+  public function gantiWarna($warnaBaru)
+  {
+    $this->warna = $warnaBaru;
+  }
+  
+  public function tampilWarna()
+  {
+    echo "Warna mobilnya : " . $this->warna;
+  }
+ }
+ 
+ // membuat objek mobil
+ $a = new Mobil();
+ $b = new Mobil();
+
+ // memanggil objek
+ echo "<b>Mobil Pertama</b><br>";
+ $a->tampilWarna();
+ echo "<br>Mobil pertama ganti warna<br>";
+ $a->gantiWarna("Merah");
+ $a->tampilWarna();
+
+ // memanggil objek
+ echo "<br><b>Mobil kedua</b><br>";
+ $b->gantiWarna("Hijau");
+ $b->tampilWarna();
+
+ ?>
+```
+> form.php
+> form_input.php
+> database.php
 
 
 
